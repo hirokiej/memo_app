@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>メモの追加</title>
+</head>
+<body>
+  <h1>メモアプリ</h1>
+  <form action="/memos/:id" method="post">
+    <input name="title" id="title" type="text" value='<%= @title %>'>
+    <textarea name="content" id="content" cols="30" rows="10"><%= @content %></textarea>
+    <input name="_method" type="hidden" value='patch'>
+    <input type="submit" value="送信">
+  </form>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>メモアプリ</title>
+</head>
+<body>
+  <h1>メモアプリ</h1>
+  <% @memos.each do |memo| %>
+    <li><a href="/memos/<%= memo['id'] %>"><%= memo['title'] %></a></li>
+  <% end %>
+  <form method="get" action="/new">
+    <input type="submit" value="追加">
+  </form>
+</body>
+</html>
