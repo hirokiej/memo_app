@@ -7,11 +7,11 @@
 </head>
 <body>
   <h1>メモアプリ</h1>
-  <form action="/memos/:id" method="post">
-    <input name="title" id="title" type="text" value='<%= @title %>'>
-    <textarea name="content" id="content" cols="30" rows="10"><%= @content %></textarea>
+  <form action="/memos/<%= @id %>" method="post">
+    <input name="title" id="title" type="text" value='<%= h(@title) %>'>
+    <textarea name="content" id="content" cols="30" rows="10"><%= h(@content) %></textarea>
     <input name="_method" type="hidden" value='patch'>
-    <input type="submit" value="送信">
+    <input type="submit" class="submit-button" value="送信">
   </form>
 </body>
 </html>

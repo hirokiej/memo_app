@@ -7,17 +7,19 @@
 </head>
 <body>
   <h1>メモアプリ</h1>
-  <%= @title %>
+  <%= h(@title) %>
   <br>
-  <%= @content %>
+  <%= h(@content) %>
   <br>
   <form method="get" action="/memos/<%= params[:id] %>/edit">
-    <input type="submit" value="変更">
+    <input type="submit" class="submit-button" value="変更">
   </form>
   <form method="post" action="/memos/<%= params[:id] %>">
     <input type="hidden" name="_method" value="delete">
-    <input type="submit" value="削除">
+    <input type="submit" class="submit-button" value="削除">
   </form>
-
+  <form method="get" action="/">
+  <input type="submit" class="submit-button" value="戻る">
+  </form>
   </body>
 </html>

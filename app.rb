@@ -1,14 +1,37 @@
+# frozen_string_literal: true
+
 require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
 
-get '/' do
+MEMOS_FILE = 'public/memos.json'
 
-  if File.exist?('public/memos.json')
-    memos = File.open('public/memos.json'){ |file| JSON.load(file) }
+helpers do
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
+
+  def load_memos(memos_file)
+    File.open(memos_file) { |file| JSON.parse(file.read) }
+  end
+
+  def save_memos(memos)
+    File.open(MEMOS_FILE, 'w') do |file|
+      file.write(JSON.pretty_generate(memos))
+    end
+  end
+
+  def find_memo(memos, id)
+    memos.find { |memo| memo['id'] == id }
+  end
+end
+
+get '/' do
+  if File.exist?(MEMOS_FILE)
+    memos = load_memos(MEMOS_FILE)
     @memos = memos || []
   else
-    @memos =[]
+    @memos = []
   end
   erb :index
 end
@@ -18,22 +41,20 @@ get '/new' do
 end
 
 post '/create' do
-  memos = File.empty?('public/memos.json') ? [] : JSON.parse(File.read('public/memos.json'))
+  memos = File.empty?(MEMOS_FILE) ? [] : JSON.parse(File.read(MEMOS_FILE))
   title = params[:title]
   content = params[:content]
   id = memos.empty? ? 1 : memos.last['id'].to_i + 1
-  memo = { 'id' => id, 'title' => title, 'content' => content}
+  memo = { 'id' => id, 'title' => title, 'content' => content }
   memos << memo
-  File.open('public/memos.json', 'w' ) do |file|
-    file.write(JSON.pretty_generate(memos))
-  end
+  save_memos(memos)
   redirect '/'
 end
 
 get '/memos/:id' do
-  memo = File.open('public/memos.json'){ |file| JSON.load(file) }
+  memos = load_memos(MEMOS_FILE)
   id = params[:id].to_i
-  selected_memo = memo.find{ |memo| memo['id'] == id}
+  selected_memo = find_memo(memos, id)
   @title = selected_memo['title']
   @content = selected_memo['content']
   @id = selected_memo['id']
@@ -41,9 +62,9 @@ get '/memos/:id' do
 end
 
 get '/memos/:id/edit' do
-  memo = File.open('public/memos.json'){ |file| JSON.load(file) }
+  memos = load_memos(MEMOS_FILE)
   id = params[:id].to_i
-  selected_memo = memo.find{ |memo| memo['id'] == id}
+  selected_memo = find_memo(memos, id)
   @title = selected_memo['title']
   @content = selected_memo['content']
   @id = selected_memo['id']
@@ -51,24 +72,28 @@ get '/memos/:id/edit' do
 end
 
 patch '/memos/:id' do
-  memo = File.open('public/memos.json'){ |file| JSON.load(file) }
+  memos = load_memos(MEMOS_FILE)
   id = params[:id].to_i
   title = params[:title]
   content = params[:content]
-
-  memo[id - 1] = { 'id' => id, 'title' => title, 'content' => content }
-  File.open('public/memos.json', 'w' ) do |file|
-    file.write(JSON.pretty_generate(memo))
+  selected_memo = find_memo(memos, id)
+  if selected_memo
+    selected_memo['title'] = title
+    selected_memo['content'] = content
   end
+  save_memos(memos)
   redirect "/memos/#{id}"
 end
 
 delete '/memos/:id' do
   id = params[:id].to_i
-  memos = File.open('public/memos.json'){ |file| JSON.load(file) }
-  memos.delete_if{|memo| memo['id'] == id}
-  File.open('public/memos.json', 'w' ) do |file|
-    file.write(JSON.pretty_generate(memos))
-  end
+  memos = load_memos(MEMOS_FILE)
+  memos.delete_if { |memo| memo['id'] == id }
+  save_memos(memos)
   redirect '/'
+end
+
+not_found do
+  status 404
+  erb :oops
 end

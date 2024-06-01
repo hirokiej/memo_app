@@ -7,11 +7,13 @@
 </head>
 <body>
   <h1>メモアプリ</h1>
-  <% @memos.each do |memo| %>
-    <li><a href="/memos/<%= memo['id'] %>"><%= memo['title'] %></a></li>
-  <% end %>
   <form method="get" action="/new">
-    <input type="submit" value="追加">
+    <input type="submit" class="submit-button" value="追加">
   </form>
+  <% @memos.each do |memo| %>
+    <ul>
+      <li><a href="/memos/<%= memo['id'] %>"><%= h(memo['title']) %></a></li>
+    </ul>
+  <% end %>
 </body>
 </html>
