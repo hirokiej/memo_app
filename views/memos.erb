@@ -7,9 +7,9 @@
 </head>
 <body>
   <h1>メモアプリ</h1>
-  <%= h(@title) %>
+  <%= escape_html(@title) %>
   <br>
-  <%= h(@content) %>
+  <%= escape_html(@content) %>
   <br>
   <form method="get" action="/memos/<%= params[:id] %>/edit">
     <input type="submit" class="submit-button" value="変更">

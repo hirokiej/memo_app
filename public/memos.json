@@ -1,17 +1,1 @@
-[
-  {
-    "id": 1,
-    "title": "メモ１",
-    "content": "１"
-  },
-  {
-    "id": 2,
-    "title": "メモ２",
-    "content": "２"
-  },
-  {
-    "id": 3,
-    "title": "メモ３",
-    "content": "３"
-  }
-]
+[{"id":1,"title":"メモ１","content":"１"},{"id":2,"title":"メモ２","content":"２"},{"id":3,"title":"メモ３","content":"３"}]

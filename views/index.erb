@@ -12,7 +12,7 @@
   </form>
   <% @memos.each do |memo| %>
     <ul>
-      <li><a href="/memos/<%= memo['id'] %>"><%= h(memo['title']) %></a></li>
+      <li><a href="/memos/<%= memo['id'] %>"><%= escape_html(memo['title']) %></a></li>
     </ul>
   <% end %>
 </body>

@@ -7,28 +7,37 @@ require 'json'
 MEMOS_FILE = 'public/memos.json'
 
 helpers do
-  def h(text)
+  def escape_html(text)
     Rack::Utils.escape_html(text)
   end
 
-  def load_memos(memos_file)
-    File.open(memos_file) { |file| JSON.parse(file.read) }
+  def load_memos
+    if File.exist?(MEMOS_FILE)
+      File.open(MEMOS_FILE) { |file| JSON.parse(file.read) }
+    else
+      []
+    end
   end
 
   def save_memos(memos)
     File.open(MEMOS_FILE, 'w') do |file|
-      file.write(JSON.pretty_generate(memos))
+      file.write(JSON.generate(memos))
     end
   end
 
-  def find_memo(memos, id)
+  def find_memo(id)
+    memos = load_memos
     memos.find { |memo| memo['id'] == id }
+  end
+
+  def cal_memo_id(memos)
+    memos.empty? ? 1 : memos.last['id'].to_i + 1
   end
 end
 
 get '/' do
   if File.exist?(MEMOS_FILE)
-    memos = load_memos(MEMOS_FILE)
+    memos = load_memos
     @memos = memos || []
   else
     @memos = []
@@ -41,10 +50,10 @@ get '/new' do
 end
 
 post '/create' do
-  memos = File.empty?(MEMOS_FILE) ? [] : JSON.parse(File.read(MEMOS_FILE))
+  memos = load_memos
   title = params[:title]
   content = params[:content]
-  id = memos.empty? ? 1 : memos.last['id'].to_i + 1
+  id = cal_memo_id(memos)
   memo = { 'id' => id, 'title' => title, 'content' => content }
   memos << memo
   save_memos(memos)
@@ -52,34 +61,32 @@ post '/create' do
 end
 
 get '/memos/:id' do
-  memos = load_memos(MEMOS_FILE)
   id = params[:id].to_i
-  selected_memo = find_memo(memos, id)
-  @title = selected_memo['title']
-  @content = selected_memo['content']
-  @id = selected_memo['id']
+  memo = find_memo(id)
+  @title = memo['title']
+  @content = memo['content']
+  @id = memo['id']
   erb :memos
 end
 
 get '/memos/:id/edit' do
-  memos = load_memos(MEMOS_FILE)
   id = params[:id].to_i
-  selected_memo = find_memo(memos, id)
-  @title = selected_memo['title']
-  @content = selected_memo['content']
-  @id = selected_memo['id']
+  memo = find_memo(id)
+  @title = memo['title']
+  @content = memo['content']
+  @id = memo['id']
   erb :edit
 end
 
 patch '/memos/:id' do
-  memos = load_memos(MEMOS_FILE)
+  memos = load_memos
   id = params[:id].to_i
   title = params[:title]
   content = params[:content]
-  selected_memo = find_memo(memos, id)
-  if selected_memo
-    selected_memo['title'] = title
-    selected_memo['content'] = content
+  memo = find_memo(id)
+  if memo
+    memo['title'] = title
+    memo['content'] = content
   end
   save_memos(memos)
   redirect "/memos/#{id}"
@@ -87,7 +94,7 @@ end
 
 delete '/memos/:id' do
   id = params[:id].to_i
-  memos = load_memos(MEMOS_FILE)
+  memos = load_memos
   memos.delete_if { |memo| memo['id'] == id }
   save_memos(memos)
   redirect '/'
