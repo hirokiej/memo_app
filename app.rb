@@ -12,10 +12,10 @@ helpers do
   end
 
   def load_memos
-    if File.exist?(MEMOS_FILE)
-      File.open(MEMOS_FILE) { |file| JSON.parse(file.read) }
-    else
+    if File.empty?(MEMOS_FILE)
       []
+    else
+      File.open(MEMOS_FILE) { |file| JSON.parse(file.read) }
     end
   end
 
@@ -26,22 +26,16 @@ helpers do
   end
 
   def find_memo(id)
-    memos = load_memos
-    memos.find { |memo| memo['id'] == id }
+    load_memos.find { |memo| memo['id'] == id }
   end
 
-  def cal_memo_id(memos)
-    memos.empty? ? 1 : memos.last['id'].to_i + 1
+  def calculate_new_memo_id
+    load_memos.empty? ? 1 : load_memos.last['id'].to_i + 1
   end
 end
 
 get '/' do
-  if File.exist?(MEMOS_FILE)
-    memos = load_memos
-    @memos = memos || []
-  else
-    @memos = []
-  end
+  @memos = load_memos
   erb :index
 end
 
@@ -53,28 +47,25 @@ post '/create' do
   memos = load_memos
   title = params[:title]
   content = params[:content]
-  id = cal_memo_id(memos)
-  memo = { 'id' => id, 'title' => title, 'content' => content }
-  memos << memo
+  id = calculate_new_memo_id
+  memos << { 'id' => id, 'title' => title, 'content' => content }
   save_memos(memos)
   redirect '/'
 end
 
 get '/memos/:id' do
-  id = params[:id].to_i
-  memo = find_memo(id)
+  @id = params[:id].to_i
+  memo = find_memo(@id)
   @title = memo['title']
   @content = memo['content']
-  @id = memo['id']
   erb :memos
 end
 
 get '/memos/:id/edit' do
-  id = params[:id].to_i
-  memo = find_memo(id)
+  @id = params[:id].to_i
+  memo = find_memo(@id)
   @title = memo['title']
   @content = memo['content']
-  @id = memo['id']
   erb :edit
 end
 
