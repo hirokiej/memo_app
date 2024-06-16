@@ -12,11 +12,7 @@ helpers do
   end
 
   def load_memos
-    if File.empty?(MEMOS_FILE)
-      []
-    else
-      File.open(MEMOS_FILE) { |file| JSON.parse(file.read) }
-    end
+    File.empty?(MEMOS_FILE) ? [] : File.open(MEMOS_FILE) { |file| JSON.parse(file.read) }
   end
 
   def save_memos(memos)
@@ -30,7 +26,8 @@ helpers do
   end
 
   def calculate_new_memo_id
-    load_memos.empty? ? 1 : load_memos.last['id'].to_i + 1
+    memos = load_memos
+    memos.empty? ? 1 : memos.last['id'].to_i + 1
   end
 end
 
@@ -71,15 +68,21 @@ end
 
 patch '/memos/:id' do
   memos = load_memos
+
   id = params[:id].to_i
   title = params[:title]
   content = params[:content]
+
   memo = find_memo(id)
+
   if memo
     memo['title'] = title
     memo['content'] = content
+    memos[id - 1] = memo
   end
+
   save_memos(memos)
+
   redirect "/memos/#{id}"
 end
 
