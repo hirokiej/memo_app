@@ -25,6 +25,12 @@ helpers do
     load_memos.find { |memo| memo['id'] == id }
   end
 
+  def find_memo_index(id)
+    load_memos.each_with_index do |memo, index|
+      return index if memo['id'] == id
+    end
+  end
+
   def calculate_new_memo_id
     memos = load_memos
     memos.empty? ? 1 : memos.last['id'].to_i + 1
@@ -74,11 +80,12 @@ patch '/memos/:id' do
   content = params[:content]
 
   memo = find_memo(id)
+  index = find_memo_index(id).to_i
 
   if memo
     memo['title'] = title
     memo['content'] = content
-    memos[id - 1] = memo
+    memos[index] = memo
   end
 
   save_memos(memos)
