@@ -80,7 +80,7 @@ patch '/memos/:id' do
   content = params[:content]
 
   memo = find_memo(id)
-  index = find_memo_index(id).to_i
+  index = find_memo_index(id)
 
   if memo
     memo['title'] = title
