@@ -86,6 +86,8 @@ patch '/memos/:id' do
     memo['title'] = title
     memo['content'] = content
     memos[index] = memo
+  else
+    erb :oops
   end
 
   save_memos(memos)
