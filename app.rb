@@ -12,7 +12,7 @@ helpers do
   end
 
   def load_memos
-    File.empty?(MEMOS_FILE) ? [] : File.open(MEMOS_FILE) { |file| JSON.parse(file.read) }
+    File.exist?(MEMOS_FILE) ? JSON.parse(File.read(MEMOS_FILE)) : File.open(MEMOS_FILE, 'w') { |file| file.write([]) }
   end
 
   def save_memos(memos)
