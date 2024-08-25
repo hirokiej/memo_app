@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>メモの追加</title>
+  <title>メモの編集</title>
 </head>
 <body>
   <h1>メモアプリ</h1>
   <form action="/memos/<%= @id %>" method="post">
+    <strong>タイトル</strong>
     <input name="title" id="title" type="text" value='<%= escape_html(@title) %>'>
+    <strong>本文</strong>
     <textarea name="content" id="content" cols="30" rows="10"><%= escape_html(@content) %></textarea>
     <input name="_method" type="hidden" value='patch'>
     <input type="submit" class="submit-button" value="送信">

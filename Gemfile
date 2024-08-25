@@ -6,6 +6,7 @@ source 'https://rubygems.org'
 gem 'rackup'
 gem 'sinatra'
 gem 'sinatra-contrib'
+gem 'pg'
 
 group :development do
   gem 'rubocop-fjord', require: false
