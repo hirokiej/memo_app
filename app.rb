@@ -5,7 +5,7 @@ require 'sinatra/reloader'
 require 'json'
 require 'pg'
 
-conn ||= PG.connect( dbname: 'my_memo_db' )
+conn ||= PG.connect(dbname: 'my_memo_db')
 conn.exec('CREATE TABLE IF NOT EXISTS memos(id SERIAL PRIMARY KEY, title TEXT NOT NULL, content TEXT NOT NULL)')
 
 helpers do
@@ -26,15 +26,15 @@ end
 post '/create' do
   title = params[:title]
   content = params[:content]
-  
-  conn.exec_params('INSERT INTO memos (title, content) VALUES($1, $2)',[title, content])
+
+  conn.exec_params('INSERT INTO memos (title, content) VALUES($1, $2)', [title, content])
 
   redirect '/'
 end
 
 get '/memos/:id' do
   id = params[:id]
-  memos = conn.exec_params('SELECT * FROM memos WHERE id = $1',[id])
+  memos = conn.exec_params('SELECT * FROM memos WHERE id = $1', [id])
 
   @title = memos[0]['title']
   @content = memos[0]['content']
@@ -43,7 +43,7 @@ end
 
 get '/memos/:id/edit' do
   id = params[:id]
-  memos = conn.exec_params('SELECT * FROM memos WHERE id = $1',[id])
+  memos = conn.exec_params('SELECT * FROM memos WHERE id = $1', [id])
 
   @id = id
   @title = memos[0]['title']
