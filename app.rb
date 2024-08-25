@@ -6,7 +6,7 @@ require 'json'
 require 'pg'
 
 conn ||= PG.connect( dbname: 'my_memo_db' )
-conn.exec('CREATE TABLE IF NOT EXISTS memos(id SERIAL PRIMARY KEY, title TEXT, content TEXT)')
+conn.exec('CREATE TABLE IF NOT EXISTS memos(id SERIAL PRIMARY KEY, title TEXT NOT NULL, content TEXT NOT NULL)')
 
 helpers do
   def escape_html(text)
