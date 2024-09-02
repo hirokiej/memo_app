@@ -3,8 +3,10 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
+require 'pg'
 
-MEMOS_FILE = 'public/memos.json'
+CONN ||= PG.connect(dbname: 'my_memo_db')
+CONN.exec('CREATE TABLE IF NOT EXISTS memos(id SERIAL PRIMARY KEY, title TEXT NOT NULL, content TEXT NOT NULL)')
 
 helpers do
   def escape_html(text)
@@ -12,28 +14,23 @@ helpers do
   end
 
   def load_memos
-    File.exist?(MEMOS_FILE) ? JSON.parse(File.read(MEMOS_FILE)) : File.open(MEMOS_FILE, 'w') { |file| file.write([]) }
+    CONN.exec('SELECT * FROM memos')
   end
 
-  def save_memos(memos)
-    File.open(MEMOS_FILE, 'w') do |file|
-      file.write(JSON.generate(memos))
-    end
+  def create_memo(title, content)
+    CONN.exec_params('INSERT INTO memos (title, content) VALUES($1, $2)', [title, content])
   end
 
   def find_memo(id)
-    load_memos.find { |memo| memo['id'] == id }
+    CONN.exec_params('SELECT * FROM memos WHERE id = $1', [id])
   end
 
-  def find_memo_index(id)
-    load_memos.each_with_index do |memo, index|
-      return index if memo['id'] == id
-    end
+  def update_memo(title, content, id)
+    CONN.exec_params('UPDATE memos SET title = $1, content = $2 WHERE id = $3', [title, content, id])
   end
 
-  def calculate_new_memo_id
-    memos = load_memos
-    memos.empty? ? 1 : memos.last['id'].to_i + 1
+  def delete_memo(id)
+    CONN.exec_params('DELETE FROM memos WHERE ID = $1', [id])
   end
 end
 
@@ -47,59 +44,37 @@ get '/new' do
 end
 
 post '/create' do
-  memos = load_memos
-  title = params[:title]
-  content = params[:content]
-  id = calculate_new_memo_id
-  memos << { 'id' => id, 'title' => title, 'content' => content }
-  save_memos(memos)
+  create_memo(params[:title], params[:content])
+
   redirect '/'
 end
 
 get '/memos/:id' do
-  @id = params[:id].to_i
-  memo = find_memo(@id)
-  @title = memo['title']
-  @content = memo['content']
+  memos = find_memo(params[:id])
+
+  @title = memos[0]['title']
+  @content = memos[0]['content']
   erb :memos
 end
 
 get '/memos/:id/edit' do
-  @id = params[:id].to_i
-  memo = find_memo(@id)
-  @title = memo['title']
-  @content = memo['content']
+  memos = find_memo(params[:id])
+
+  @id = params[:id]
+  @title = memos[0]['title']
+  @content = memos[0]['content']
   erb :edit
 end
 
 patch '/memos/:id' do
-  memos = load_memos
+  update_memo(params[:title], params[:content], params[:id])
 
-  id = params[:id].to_i
-  title = params[:title]
-  content = params[:content]
-
-  memo = find_memo(id)
-  index = find_memo_index(id)
-
-  if memo
-    memo['title'] = title
-    memo['content'] = content
-    memos[index] = memo
-  else
-    erb :oops
-  end
-
-  save_memos(memos)
-
-  redirect "/memos/#{id}"
+  redirect "/memos/#{params[:id]}"
 end
 
 delete '/memos/:id' do
-  id = params[:id].to_i
-  memos = load_memos
-  memos.delete_if { |memo| memo['id'] == id }
-  save_memos(memos)
+  delete_memo(params[:id])
+
   redirect '/'
 end
 

@@ -8,9 +8,14 @@
 <body>
   <h1>メモアプリ</h1>
   <form action="/create" method="post">
-    <input name="title" id="title" type="text">
-    <textarea name="content" id="content" cols="30" rows="10"></textarea>
+    <strong>タイトル</strong>
+      <input name="title" id="title" type="text">
+    <strong>本文</strong>
+      <textarea name="content" id="content" cols="30" rows="10"></textarea>
     <input type="submit" class="submit-button" value="送信">
+  </form>
+  <form method="get" action="/">
+    <input type="submit" class="submit-button" value="戻る">
   </form>
 </body>
 </html>

@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 
 # gem "rails"
+gem 'pg'
 gem 'rackup'
 gem 'sinatra'
 gem 'sinatra-contrib'
